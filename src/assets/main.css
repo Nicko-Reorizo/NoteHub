@@ -1,0 +1,54 @@
+@import './base.css';
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* FONTS */
+.inter-regular {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 450;
+  font-style: normal;
+}
+.inter-bold {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+.inter-semibold{
+   font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+}
+/* FONTS */
+
+.LogoutBtn{
+ background-color: rgb(255, 65, 65);
+}
+.UploadForm{
+  @apply 2xl:w-[700px] lg:w-[500px] md:w-[400px] w-full m-5; 
+}
+
+input{
+  border: 1px solid;
+  border-radius: 5px;
+  border-color: rgba(0, 0, 0, 0.171);
+  height: 43px;
+  padding: 5px;
+  padding-left: 10px;
+}
+
+textarea{
+  border: 1px solid;
+  border-radius: 5px;
+  border-color: rgba(0, 0, 0, 0.171);
+  height: 130px;
+  padding: 5px;
+  padding-left: 10px;
+}
+
+label{
+  margin-bottom: 5px;
+}
