@@ -17,7 +17,7 @@
           <label>Password</label>
           <input v-model="password" type="password" placeholder="******"  class="h-[35px] mb-4 p-3 w-full inter-semibold rounded-[5px] border border-[#00000013]"/>
 
-          <input type="submit" value="Sign-in" class="inter-regular mt-5 w-full rounded-[3px] bg-purple-800 p-1 py-2.5 text-white" />
+          <input type="submit" value="Sign-in" class="inter-regular mt-5 w-full rounded-[3px] bg-purple-800 p-1 py-2.5 text-white cursor-pointer" />
         </form>
 
         <p class="mt-2 text-center text-[#0000007a]">
@@ -33,23 +33,23 @@
   </div>
 </template>
 
-<script>
-import logo from './assets/Logo.png'
+<script setup>
+import { ref } from 'vue';
+import logo from './assets/Logo.png';
 
-export default {
-  name: "Login",
-  data() {
-    return {
-      email: "",
-      password: "",
-      logo
-    }
-  },
-  methods: {
-    handleLogin() {
-      console.log("Email:", this.email);
-      console.log("Password:", this.password);
-    }
+const email = ref('');
+const password = ref('');
+
+// define emits so App.vue can listen
+const emit = defineEmits(['login-success']);
+
+function handleLogin() {
+  // Simple login check (replace with real backend later)
+  if (email.value === '' && password.value === '') {
+    alert('Login successful!');
+    emit('login-success'); // notify App.vue to switch to Home
+  } else {
+    alert('Login failed');
   }
 }
 </script>
