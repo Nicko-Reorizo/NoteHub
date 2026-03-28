@@ -40,14 +40,14 @@ import logo from './assets/Logo.png';
 const email = ref('');
 const password = ref('');
 
-// define emits so App.vue can listen
+
 const emit = defineEmits(['login-success']);
 
 function handleLogin() {
-  // Simple login check (replace with real backend later)
+  
   if (email.value === '' && password.value === '') {
     alert('Login successful!');
-    emit('login-success'); // notify App.vue to switch to Home
+    emit('login-success'); 
   } else {
     alert('Login failed');
   }

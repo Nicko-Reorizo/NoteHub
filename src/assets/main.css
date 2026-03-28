@@ -13,7 +13,7 @@
 .inter-bold {
   font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
-  font-weight: 700;
+  font-weight: 600;
   font-style: normal;
 }
 .inter-semibold{
@@ -51,4 +51,9 @@ textarea{
 
 label{
   margin-bottom: 5px;
+}
+
+button{
+  @apply 
+  cursor-pointer
 }

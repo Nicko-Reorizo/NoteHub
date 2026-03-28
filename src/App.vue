@@ -2,7 +2,8 @@
 import {ref} from 'vue';
 import Login from './Login.vue';
 import Home from './Home.vue';
-import Upload from './Upload.vue';
+import Upload from './NavPages/Upload.vue';
+import BrowseNotes from './NavPages/BrowseNotes.vue';
 
 const currPage = ref('login');
 

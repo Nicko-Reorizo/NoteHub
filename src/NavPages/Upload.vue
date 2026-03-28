@@ -1,4 +1,5 @@
 <template>
+<div class="flex justify-center">
   <div class="UploadForm border border-[#00000018] rounded-[10px] p-7 mt-5">
     <p class="text-2xl inter-bold">Upload Note</p>
 
@@ -18,6 +19,7 @@
       <input type="submit" value="Upload Note" class="inter-regular mt-5 w-full rounded-[3px] bg-purple-800 p-1 py-2.5 text-white" />
     </form>
   </div>
+</div>
 </template>
 
 <script>
