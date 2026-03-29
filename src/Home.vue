@@ -11,7 +11,7 @@
         <button @click="currComponent='browsenotes'" class="inter-semibold HomeBtn">Home</button>
         <button @click="currComponent='upload'" class="inter-semibold UploadBtn">Upload</button>
         <button @click="currComponent='mynotes'" class="inter-semibold MyNotesBtn">MyNotes</button>
-        <button class="inter-semibold LogoutBtn p-2 px-3 rounded-[20px] text-white">Log out</button>
+        <button @click="logout" class="inter-semibold LogoutBtn p-2 px-3 rounded-[20px] text-white">Log out</button>
       </div>
     </div>
 
@@ -33,6 +33,8 @@ import {ref} from 'vue';
 
 const currComponent = ref('browsenotes');
 
+
+
 export default {
   name: "Home",
   components: { Upload, BrowseNotes, MyNotes },
@@ -40,6 +42,15 @@ export default {
     return { logo,
       currComponent: 'browsenotes'
      }
+  },
+  methods:{
+ logout() {
+      
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      window.location.reload();
+    }
   }
 }
 </script>
