@@ -16,7 +16,7 @@
       <label class="mt-5">File Link</label>
       <input v-model="fileLink" type="text" placeholder="https://" />
 
-      <input type="submit" value="Upload Note" class="inter-regular mt-5 w-full rounded-[3px] bg-purple-800 p-1 py-2.5 text-white" />
+      <input type="submit" value="Upload Note" class="inter-regular mt-5 w-full rounded-[3px] cursor-pointer bg-purple-800 p-1 py-2.5 text-white" />
     </form>
   </div>
 </div>
@@ -34,9 +34,49 @@ export default {
     }
   },
   methods: {
-    handleUpload() {
-      console.log("Uploading Note:", this.title, this.description, this.subject, this.fileLink);
+  async handleUpload() {
+  try {
+    if (!this.title || !this.description || !this.subject || !this.fileLink) {
+      alert("Please fill in all fields");
+      return;
     }
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("You must be logged in to upload a note.");
+      return;
+    }
+
+    const res = await fetch("http://127.0.0.1:5000/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({
+        title: this.title,
+        description: this.description,
+        subject: this.subject,
+        fileLink: this.fileLink
+      })
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Upload failed");
+
+    alert("Note uploaded successfully!");
+    
+    // Clear the form
+    this.title = "";
+    this.description = "";
+    this.subject = "";
+    this.fileLink = "";
+
+  } catch (err) {
+    console.error("Upload failed:", err);
+    alert("Upload failed: " + err.message);
   }
+}
+}
 }
 </script>

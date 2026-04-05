@@ -77,14 +77,33 @@ const emit = defineEmits(["login-success"]);
 
 
 async function handleSubmit() {
+  // EMPTY CHECK
   if (!email.value || !password.value || (isRegister.value && !name.value)) {
     alert("Please fill all fields");
     return;
   }
 
+  // EMAIL VALIDATION
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.value)) {
+    alert("Invalid email format");
+    return;
+  }
+
+  // PASSWORD VALIDATION
+  if (password.value.length < 6) {
+    alert("Password must be at least 6 characters");
+    return;
+  }
+
+  // NAME VALIDATION 
+  if (isRegister.value && name.value.length < 2) {
+    alert("Name must be at least 2 characters");
+    return;
+  }
+
   try {
     if (isRegister.value) {
-      // REGISTER
       await axios.post("http://localhost:5000/api/register", {
         name: name.value,
         email: email.value,
@@ -94,7 +113,6 @@ async function handleSubmit() {
       alert("Registered successfully! You can now login.");
       isRegister.value = false;
     } else {
-      // LOGIN
       const response = await axios.post("http://localhost:5000/api/login", {
         email: email.value,
         password: password.value,

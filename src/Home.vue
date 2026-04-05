@@ -16,7 +16,7 @@
     </div>
 
     <!-- Upload Section -->
-    <div class=" xl:px-[18vw] lg:px-[20vw] md:px-30 pt-10">
+    <div class=" xl:px-[18vw] lg:px-[20vw]  pt-10">
       <BrowseNotes v-if="currComponent==='browsenotes'"/>
       <Upload v-else-if="currComponent==='upload'"/>
       <MyNotes v-else-if="currComponent==='mynotes'"/>
@@ -45,7 +45,6 @@ export default {
   },
   methods:{
  logout() {
-      
       localStorage.removeItem("token");
       localStorage.removeItem("user");
 
