@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-screen w-full items-center justify-center">
     <div
-      class="LoginBox flex flex-col justify-center space-y-2.5 w-[450px] border border-[#00000018] rounded-[10px] p-5 pt-10"
+      class="LoginBox flex flex-col justify-center space-y-2.5 w-[450px] border border-[#00000018] rounded-[10px] p-5 pt-10 pb-15 px-10"
     >
       <div class="LoginTitle text-center flex flex-col justify-center">
         <img
@@ -47,7 +47,7 @@
           />
         </form>
 
-        <p class="mt-2 text-center text-[#0000007a]">
+        <p class="mt-2 text-center text-[#0000007a] pt-1">
           Don't have an account?
           <span class="text-blue-600 underline opacity-100 cursor-pointer">
             <span
@@ -85,7 +85,7 @@ async function handleSubmit() {
 
   // EMAIL VALIDATION
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.value)) {
+  if (!emailRegex.test(email.value)) {  
     alert("Invalid email format");
     return;
   }

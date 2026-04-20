@@ -159,14 +159,15 @@ def get_notes():
             username = note.user.name
         date_str = note.date_created.strftime("%b %d, %Y") if note.date_created else ""
         result.append({
-            "id": note.id,
-            "title": note.title,
-            "description": note.description,
-            "subject": note.subject,
-            "fileLink": note.fileLink,
-            "Username": username,
-            "Date": date_str
-        })
+    "id": note.id,
+    "title": note.title,
+    "description": note.description,
+    "subject": note.subject,
+    "fileLink": note.fileLink,
+    "Username": username,
+    "Date": date_str,
+    "user_id": note.user_id
+})
     return jsonify(result)
 
 # Display My Notes
