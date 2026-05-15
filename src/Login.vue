@@ -5,11 +5,11 @@
     >
       <div class="LoginTitle text-center flex flex-col justify-center">
         <img
-          class="rounded-full w-[50px] mb-2 self-center"
+          class=" w-[150px] self-center"
           :src="logo"
           alt="Logo"
         />
-        <p class="inter-bold text-2xl mb-1">NoteHub</p>
+       
         <p class="inter-regular opacity-75 mb-4">Sign in to your account.</p>
       </div>
 

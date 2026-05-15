@@ -46,6 +46,19 @@ class Note(db.Model):
  
    user = db.relationship("User", backref="notes")
 
+# Note Version History Model
+class NoteVersion(db.Model):
+   __tablename__ = "note_versions"
+
+   id = db.Column(db.Integer, primary_key=True)
+   note_id = db.Column(db.Integer, db.ForeignKey("notes.id"), nullable=False)
+   title = db.Column(db.String(100), nullable=False)
+   description = db.Column(db.Text)
+   subject = db.Column(db.String(100))
+   fileLink = db.Column(db.String(100))
+   edited_at = db.Column(db.DateTime, server_default=db.func.now())
+   edited_by = db.Column(db.String(100))
+   note = db.relationship("Note", backref="versions")
 
 # Register Route
 @app.route("/api/register", methods=["POST"])
@@ -172,14 +185,13 @@ def get_notes():
 
 # Display My Notes
 @app.route("/api/my_notes", methods=["GET"])
-@jwt_required()  # User must be logged in
+@jwt_required()
 def get_my_notes():
-    current_user_id = get_jwt_identity()  # Get logged-in user's ID
+    current_user_id = get_jwt_identity()
     notes = Note.query.filter_by(user_id=current_user_id).all()
     
     result = []
     for note in notes:
-        
         result.append({
             "id": note.id,
             "title": note.title,
@@ -187,9 +199,119 @@ def get_my_notes():
             "subject": note.subject,
             "fileLink": note.fileLink,
             "Username": note.user.name if note.user else "Unknown",
-            "Date": note.date_created.strftime("%b %d, %Y") if note.date_created else ""
+            "Date": note.date_created.strftime("%b %d, %Y") if note.date_created else "",
+            "user_id": note.user_id
         })
+
     return jsonify(result)
+
+# Update Note
+@app.route("/api/notes/<int:note_id>", methods=["PUT"])
+@jwt_required()
+def update_note(note_id):
+    current_user_id = int(get_jwt_identity())
+    note = Note.query.get_or_404(note_id)
+
+    if note.user_id != current_user_id:
+        return jsonify({"message": "Unauthorized"}), 403
+
+    data = request.get_json()
+
+    editor = User.query.get(current_user_id)
+
+    old_version = NoteVersion(
+    note_id=note.id,
+    title=note.title,
+    description=note.description,
+    subject=note.subject,
+    fileLink=note.fileLink,
+    edited_by=editor.name if editor else "Unknown"
+)
+    db.session.add(old_version)
+
+    note.title = data.get("title", note.title)
+    note.description = data.get("description", note.description)
+    note.subject = data.get("subject", note.subject)
+    note.fileLink = data.get("fileLink", note.fileLink)
+
+    db.session.commit()
+
+    return jsonify({"message": "Note updated successfully"}), 200
+
+# Get Note Version History
+@app.route("/api/notes/<int:note_id>/versions", methods=["GET"])
+@jwt_required()
+def get_note_versions(note_id):
+    current_user_id = int(get_jwt_identity())
+    note = Note.query.get_or_404(note_id)
+
+    if note.user_id != current_user_id:
+        return jsonify({"message": "Unauthorized"}), 403
+
+    versions = NoteVersion.query.filter_by(note_id=note_id).order_by(NoteVersion.edited_at.desc()).all()
+
+    result = []
+    for version in versions:
+        result.append({
+            "id": version.id,
+            "note_id": version.note_id,
+            "title": version.title,
+            "description": version.description,
+            "subject": version.subject,
+            "fileLink": version.fileLink,
+            "edited_at": version.edited_at.strftime("%b %d, %Y %I:%M %p") if version.edited_at else "",
+            "edited_by": version.edited_by or "Unknown"
+        })
+
+    return jsonify(result), 200
+
+# Restore Note Version
+@app.route("/api/notes/<int:note_id>/versions/<int:version_id>/restore", methods=["PUT"])
+@jwt_required()
+def restore_note_version(note_id, version_id):
+    current_user_id = int(get_jwt_identity())
+    note = Note.query.get_or_404(note_id)
+
+    if note.user_id != current_user_id:
+        return jsonify({"message": "Unauthorized"}), 403
+
+    version = NoteVersion.query.filter_by(id=version_id, note_id=note_id).first_or_404()
+
+    editor = User.query.get(current_user_id)
+
+    current_version = NoteVersion(
+    note_id=note.id,
+    title=note.title,
+    description=note.description,
+    subject=note.subject,
+    fileLink=note.fileLink,
+    edited_by=editor.name if editor else "Unknown"
+)
+
+    db.session.add(current_version)
+
+    note.title = version.title
+    note.description = version.description
+    note.subject = version.subject
+    note.fileLink = version.fileLink
+
+    db.session.commit()
+
+    return jsonify({"message": "Version restored successfully"}), 200
+# Delete Note
+@app.route("/api/notes/<int:note_id>", methods=["DELETE"])
+@jwt_required()
+def delete_note(note_id):
+    current_user_id = int(get_jwt_identity())
+    note = Note.query.get_or_404(note_id)
+
+    if note.user_id != current_user_id:
+        return jsonify({"message": "Unauthorized"}), 403
+
+    db.session.delete(note)
+    db.session.commit()
+
+    return jsonify({"message": "Note deleted successfully"}), 200
 
 if __name__ == "__main__":
     with app.app_context():

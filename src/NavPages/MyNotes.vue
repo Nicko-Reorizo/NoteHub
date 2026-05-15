@@ -2,14 +2,18 @@
     <p class="text-3xl inter-bold">My Notes</p>
     <div class="grid 2xl:grid-cols-3 lg:grid-cols-2 justify-items-center space-y-5 mt-5">
     <NoteBox
-    v-for="note in notes"
-    :key="note.id"
-    :Title="note.title"
-    :Description="note.description"
-    :Subject="note.subject"
-    :Username="note.Username"
-    :Date="note.Date"
-    :fileLink="note.fileLink"
+      v-for="note in notes"
+      :key="note.id"
+      :id="note.id"
+      :fileLink="note.fileLink"
+      :Title="note.title"
+      :Description="note.description"
+      :Subject="note.subject"
+      :Username="note.Username"
+      :Date="note.Date"
+      :userId="note.user_id"
+      @note-updated="fetchNotes"
+      @note-deleted="fetchNotes"
     />
     </div>
 </template>
