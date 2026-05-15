@@ -38,6 +38,7 @@ export default {
       :key="note.id"
       :id="note.id"
       :fileLink="note.fileLink"
+      :links="note.links"
       :Title="note.title"
       :Description="note.description"
       :Subject="note.subject"

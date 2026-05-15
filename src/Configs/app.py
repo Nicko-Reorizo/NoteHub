@@ -1,9 +1,12 @@
 from datetime import timedelta
+import json
+from urllib.parse import urlparse
 
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from sqlalchemy import inspect
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
@@ -41,6 +44,7 @@ class Note(db.Model):
    description = db.Column(db.Text)
    subject = db.Column(db.String(100))
    fileLink = db.Column(db.String(100))
+   links = db.Column(db.Text, default="[]")
    user_id = db.Column(db.Integer, db.ForeignKey("users.id"))
    date_created = db.Column(db.DateTime, server_default=db.func.now())
  
@@ -56,6 +60,7 @@ class NoteVersion(db.Model):
    description = db.Column(db.Text)
    subject = db.Column(db.String(100))
    fileLink = db.Column(db.String(100))
+   links = db.Column(db.Text, default="[]")
    edited_at = db.Column(db.DateTime, server_default=db.func.now())
    edited_by = db.Column(db.String(100))
    note = db.relationship("Note", backref="versions")
@@ -121,6 +126,72 @@ def login():
         }
     }), 200
 
+def is_valid_url(url):
+    parsed_url = urlparse(url)
+    return parsed_url.scheme in ("http", "https") and bool(parsed_url.netloc)
+
+def normalize_links(raw_links):
+    if raw_links in (None, ""):
+        return []
+
+    if not isinstance(raw_links, list):
+        raise ValueError("Links must be provided as a list.")
+
+    normalized_links = []
+    for raw_link in raw_links:
+        if not isinstance(raw_link, str):
+            raise ValueError("Each link must be a URL string.")
+
+        link = raw_link.strip()
+        if not link:
+            raise ValueError("Empty links cannot be saved.")
+
+        if not is_valid_url(link):
+            raise ValueError("Please provide valid http or https links.")
+
+        if link not in normalized_links:
+            normalized_links.append(link)
+
+    return normalized_links
+
+def serialize_links(raw_links):
+    return json.dumps(normalize_links(raw_links))
+
+def deserialize_links(links_json):
+    if not links_json:
+        return []
+
+    try:
+        links = json.loads(links_json)
+    except (TypeError, json.JSONDecodeError):
+        return []
+
+    return links if isinstance(links, list) else []
+
+def note_to_dict(note):
+    username = note.user.name if note.user else "Unknown"
+    date_str = note.date_created.strftime("%b %d, %Y") if note.date_created else ""
+    return {
+        "id": note.id,
+        "title": note.title,
+        "description": note.description,
+        "subject": note.subject,
+        "fileLink": note.fileLink,
+        "links": deserialize_links(note.links),
+        "Username": username,
+        "Date": date_str,
+        "user_id": note.user_id
+    }
+
+def add_column_if_missing(table_name, column_name, column_definition):
+    inspector = inspect(db.engine)
+    existing_columns = [column["name"] for column in inspector.get_columns(table_name)]
+
+    if column_name not in existing_columns:
+        with db.engine.connect() as connection:
+            connection.exec_driver_sql(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_definition}")
+            connection.commit()
+
 # Creating a Note
 @app.route("/api/notes", methods=["POST"])
 @jwt_required()
@@ -141,11 +212,17 @@ def create_note():
         if not all([data.get("title"), data.get("description"), data.get("subject"), data.get("fileLink")]):
             return jsonify({"message": "All fields are required"}), 400
 
+        try:
+            links = serialize_links(data.get("links", []))
+        except ValueError as error:
+            return jsonify({"message": str(error)}), 400
+
         new_note = Note(
             title=data.get("title"),
             description=data.get("description"),
             subject=data.get("subject"),
             fileLink=data.get("fileLink"),
+            links=links,
             user_id=user_id
         )
 
@@ -165,22 +242,7 @@ def create_note():
 @app.route("/api/notes", methods=["GET"])
 def get_notes():
     notes = Note.query.all()
-    result = []
-    for note in notes:
-        username = "Unknown"
-        if note.user:
-            username = note.user.name
-        date_str = note.date_created.strftime("%b %d, %Y") if note.date_created else ""
-        result.append({
-    "id": note.id,
-    "title": note.title,
-    "description": note.description,
-    "subject": note.subject,
-    "fileLink": note.fileLink,
-    "Username": username,
-    "Date": date_str,
-    "user_id": note.user_id
-})
+    result = [note_to_dict(note) for note in notes]
     return jsonify(result)
 
 # Display My Notes
@@ -190,18 +252,7 @@ def get_my_notes():
     current_user_id = get_jwt_identity()
     notes = Note.query.filter_by(user_id=current_user_id).all()
     
-    result = []
-    for note in notes:
-        result.append({
-            "id": note.id,
-            "title": note.title,
-            "description": note.description,
-            "subject": note.subject,
-            "fileLink": note.fileLink,
-            "Username": note.user.name if note.user else "Unknown",
-            "Date": note.date_created.strftime("%b %d, %Y") if note.date_created else "",
-            "user_id": note.user_id
-        })
+    result = [note_to_dict(note) for note in notes]
 
     return jsonify(result)
 
@@ -225,6 +276,7 @@ def update_note(note_id):
     description=note.description,
     subject=note.subject,
     fileLink=note.fileLink,
+    links=note.links,
     edited_by=editor.name if editor else "Unknown"
 )
     db.session.add(old_version)
@@ -233,6 +285,11 @@ def update_note(note_id):
     note.description = data.get("description", note.description)
     note.subject = data.get("subject", note.subject)
     note.fileLink = data.get("fileLink", note.fileLink)
+    if "links" in data:
+        try:
+            note.links = serialize_links(data.get("links"))
+        except ValueError as error:
+            return jsonify({"message": str(error)}), 400
 
     db.session.commit()
 
@@ -259,6 +316,7 @@ def get_note_versions(note_id):
             "description": version.description,
             "subject": version.subject,
             "fileLink": version.fileLink,
+            "links": deserialize_links(version.links),
             "edited_at": version.edited_at.strftime("%b %d, %Y %I:%M %p") if version.edited_at else "",
             "edited_by": version.edited_by or "Unknown"
         })
@@ -285,6 +343,7 @@ def restore_note_version(note_id, version_id):
     description=note.description,
     subject=note.subject,
     fileLink=note.fileLink,
+    links=note.links,
     edited_by=editor.name if editor else "Unknown"
 )
 
@@ -294,6 +353,7 @@ def restore_note_version(note_id, version_id):
     note.description = version.description
     note.subject = version.subject
     note.fileLink = version.fileLink
+    note.links = version.links
 
     db.session.commit()
 
@@ -313,7 +373,13 @@ def delete_note(note_id):
 
     return jsonify({"message": "Note deleted successfully"}), 200
 
+def initialize_database():
+    db.create_all()
+    add_column_if_missing("notes", "links", "TEXT DEFAULT '[]'")
+    add_column_if_missing("note_versions", "links", "TEXT DEFAULT '[]'")
+
+with app.app_context():
+    initialize_database()
+
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

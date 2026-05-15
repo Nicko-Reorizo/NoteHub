@@ -72,6 +72,7 @@ const email = ref("");
 const password = ref("");
 const name = ref("");
 const isRegister = ref(false);
+const API_BASE_URL = "http://127.0.0.1:5000/api";
 
 const emit = defineEmits(["login-success"]);
 
@@ -91,8 +92,8 @@ async function handleSubmit() {
   }
 
   // PASSWORD VALIDATION
-  if (password.value.length < 6) {
-    alert("Password must be at least 6 characters");
+  if (password.value.length < 8) {
+    alert("Password must be at least 8 characters");
     return;
   }
 
@@ -104,7 +105,7 @@ async function handleSubmit() {
 
   try {
     if (isRegister.value) {
-      await axios.post("http://localhost:5000/api/register", {
+      await axios.post(`${API_BASE_URL}/register`, {
         name: name.value,
         email: email.value,
         password: password.value,
@@ -113,7 +114,7 @@ async function handleSubmit() {
       alert("Registered successfully! You can now login.");
       isRegister.value = false;
     } else {
-      const response = await axios.post("http://localhost:5000/api/login", {
+      const response = await axios.post(`${API_BASE_URL}/login`, {
         email: email.value,
         password: password.value,
       });
@@ -127,7 +128,17 @@ async function handleSubmit() {
       emit("login-success");
     }
   } catch (error) {
-    alert(error.response?.data?.message || "Something went wrong");
+    if (error.response?.data?.message) {
+      alert(error.response.data.message);
+      return;
+    }
+
+    if (error.request) {
+      alert("Could not reach the NoteHub server. Please make sure the Flask API is running on http://127.0.0.1:5000.");
+      return;
+    }
+
+    alert(error.message || "Something went wrong");
   }
 }
 </script>

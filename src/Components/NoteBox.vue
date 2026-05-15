@@ -83,6 +83,22 @@
             {{ localDescription }}
           </p>
 
+          <div v-if="normalizedLinks.length" class="mb-6">
+            <p class="mb-2 text-sm font-medium text-black/70">Attached Links</p>
+            <div class="flex flex-wrap gap-2">
+              <a
+                v-for="link in normalizedLinks"
+                :key="link"
+                :href="link"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="max-w-full truncate rounded-[6px] border border-[#00000018] bg-black/[0.03] px-3 py-2 text-sm text-purple-800 hover:bg-purple-50"
+              >
+                {{ link }}
+              </a>
+            </div>
+          </div>
+
           <div class="pt-5 flex gap-3">
             <button
               title="Open File"
@@ -271,6 +287,7 @@
     props: {
       id: { type: Number, required: true },
       fileLink: { type: String, required: true },
+      links: { type: Array, default: () => [] },
       Title: { type: String, required: true },
       Subject: { type: String, required: true },
       Description: { type: String, required: true },
@@ -320,6 +337,9 @@
     computed: {
       isOwner() {
         return this.currentUser && this.currentUser.id === this.userId
+      },
+      normalizedLinks() {
+        return Array.isArray(this.links) ? this.links.filter(Boolean) : []
       }
     },
 
