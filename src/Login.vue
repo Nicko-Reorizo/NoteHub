@@ -5,11 +5,11 @@
     >
       <div class="LoginTitle text-center flex flex-col justify-center">
         <img
-          class="rounded-full w-[50px] mb-2 self-center"
+          class="w-[150px] self-center"
           :src="logo"
           alt="Logo"
         />
-        <p class="inter-bold text-2xl mb-1">NoteHub</p>
+
         <p class="inter-regular opacity-75 mb-4">Sign in to your account.</p>
       </div>
 
@@ -24,6 +24,7 @@
               placeholder="Your name"
             />
           </div>
+
           <label>Email</label>
           <input
             v-model="email"
@@ -49,14 +50,12 @@
 
         <p class="mt-2 text-center text-[#0000007a] pt-1">
           Don't have an account?
-          <span class="text-blue-600 underline opacity-100 cursor-pointer">
-            <span
-              @click="isRegister = !isRegister"
-              class="text-blue-600 underline opacity-100 cursor-pointer"
-            >
-              {{ isRegister ? "Back to Login" : "Register Now" }}
-            </span></span
+          <span
+            @click="isRegister = !isRegister"
+            class="text-blue-600 underline opacity-100 cursor-pointer"
           >
+            {{ isRegister ? "Back to Login" : "Register Now" }}
+          </span>
         </p>
       </div>
     </div>
@@ -64,70 +63,78 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import axios from "axios";
-import logo from "./assets/Logo.png";
+import { ref } from "vue"
+import axios from "axios"
+import logo from "./assets/Logo.png"
 
-const email = ref("");
-const password = ref("");
-const name = ref("");
-const isRegister = ref(false);
+const email = ref("")
+const password = ref("")
+const name = ref("")
+const isRegister = ref(false)
+const API_BASE_URL = "http://127.0.0.1:5000/api"
 
-const emit = defineEmits(["login-success"]);
-
+const emit = defineEmits(["login-success"])
 
 async function handleSubmit() {
-  // EMPTY CHECK
   if (!email.value || !password.value || (isRegister.value && !name.value)) {
-    alert("Please fill all fields");
-    return;
+    alert("Please fill all fields")
+    return
   }
 
-  // EMAIL VALIDATION
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.value)) {  
-    alert("Invalid email format");
-    return;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  if (!emailRegex.test(email.value)) {
+    alert("Invalid email format")
+    return
   }
 
-  // PASSWORD VALIDATION
-  if (password.value.length < 6) {
-    alert("Password must be at least 6 characters");
-    return;
+  if (password.value.length < 8) {
+    alert("Password must be at least 8 characters")
+    return
   }
 
-  // NAME VALIDATION 
   if (isRegister.value && name.value.length < 2) {
-    alert("Name must be at least 2 characters");
-    return;
+    alert("Name must be at least 2 characters")
+    return
   }
 
   try {
     if (isRegister.value) {
-      await axios.post("http://localhost:5000/api/register", {
+      await axios.post(`${API_BASE_URL}/register`, {
         name: name.value,
         email: email.value,
-        password: password.value,
-      });
+        password: password.value
+      })
 
-      alert("Registered successfully! You can now login.");
-      isRegister.value = false;
-    } else {
-      const response = await axios.post("http://localhost:5000/api/login", {
-        email: email.value,
-        password: password.value,
-      });
-
-      const data = response.data;
-
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-
-      alert("Login successful!");
-      emit("login-success");
+      alert("Registered successfully! You can now login.")
+      isRegister.value = false
+      return
     }
+
+    const response = await axios.post(`${API_BASE_URL}/login`, {
+      email: email.value,
+      password: password.value
+    })
+
+    const data = response.data
+
+    localStorage.setItem("token", data.access_token)
+    localStorage.setItem("user", JSON.stringify(data.user))
+
+    alert("Login successful!")
+    emit("login-success")
   } catch (error) {
-    alert(error.response?.data?.message || "Something went wrong");
+    if (error.response?.data?.message) {
+      alert(error.response.data.message)
+      return
+    }
+
+    if (error.request) {
+      alert("Could not reach the NoteHub server. Please make sure the Flask API is running on http://127.0.0.1:5000.")
+      return
+    }
+
+    alert(error.message || "Something went wrong")
   }
 }
 </script>
