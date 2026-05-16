@@ -1,23 +1,24 @@
 <script setup>
-import {ref} from 'vue';
-import Login from './Login.vue';
-import Home from './Home.vue';
-import Upload from './NavPages/Upload.vue';
-import BrowseNotes from './NavPages/BrowseNotes.vue';
+import { ref } from 'vue'
+import Login from './Login.vue'
+import Home from './Home.vue'
+import Upload from './NavPages/Upload.vue'
+import LandingPage from './LandingPage.vue'
 
-const currPage = ref('login');
+const currPage = ref('landing')
 
 function handleLoginSuccess() {
-  currPage.value = 'home';
+  currPage.value = 'home'
+}
+
+function showLogin() {
+  currPage.value = 'login'
 }
 </script>
 
 <template>
-  <Login v-if="currPage === 'login'" @login-success="handleLoginSuccess" />
+  <LandingPage v-if="currPage === 'landing'" @login="showLogin" />
+  <Login v-else-if="currPage === 'login'" @login-success="handleLoginSuccess" />
   <Home v-else-if="currPage === 'home'" />
   <Upload v-else-if="currPage === 'upload'" />
 </template>
-
-<style scoped>
-
-</style>

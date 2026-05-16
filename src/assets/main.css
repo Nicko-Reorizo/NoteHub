@@ -16,6 +16,12 @@
   font-weight: 600;
   font-style: normal;
 }
+.inter-black {
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 900;
+  font-style: normal;
+}
 .inter-semibold{
    font-family: "Inter", sans-serif;
   font-optical-sizing: auto;
