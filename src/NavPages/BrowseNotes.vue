@@ -19,7 +19,7 @@ export default {
       try {
         const token = localStorage.getItem("token")
 
-        const res = await fetch("http://127.0.0.1:5000/api/notes", {
+        const res = await fetch("https://notehub-4mi4.onrender.com/api/notes", {
           headers: token ? { Authorization: "Bearer " + token } : {}
         })
 

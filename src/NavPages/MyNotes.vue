@@ -41,7 +41,7 @@ export default {
   methods: {
     async fetchNotes() {
       try {
-        const res = await fetch("http://127.0.0.1:5000/api/my_notes", {
+        const res = await fetch("https://notehub-4mi4.onrender.com/api/my_notes", {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token")
           }

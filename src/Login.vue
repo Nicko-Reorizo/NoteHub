@@ -71,7 +71,7 @@ const email = ref("")
 const password = ref("")
 const name = ref("")
 const isRegister = ref(false)
-const API_BASE_URL = "http://127.0.0.1:5000/api"
+const API_BASE_URL = "https://notehub-4mi4.onrender.com/api"
 
 const emit = defineEmits(["login-success"])
 
@@ -130,7 +130,7 @@ async function handleSubmit() {
     }
 
     if (error.request) {
-      alert("Could not reach the NoteHub server. Please make sure the Flask API is running on http://127.0.0.1:5000.")
+      alert("Could not reach the NoteHub server. Please make sure the Flask API is running on https://notehub-4mi4.onrender.com.")
       return
     }
 
