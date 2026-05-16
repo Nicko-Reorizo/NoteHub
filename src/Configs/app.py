@@ -12,7 +12,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notehub.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notehub_fresh.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["JWT_SECRET_KEY"] = "change-this-secret-key"
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=2)
