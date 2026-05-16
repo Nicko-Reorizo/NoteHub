@@ -537,7 +537,7 @@ export default {
         body.editable_by_others = this.editEditableByOthers
       }
 
-      const res = await fetch(`http://127.0.0.1:5000/api/notes/${this.id}`, {
+      const res = await fetch(`https://notehub-4mi4.onrender.com/api/notes/${this.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -573,7 +573,7 @@ export default {
     async deleteNote() {
       const token = localStorage.getItem("token")
 
-      const res = await fetch(`http://127.0.0.1:5000/api/notes/${this.id}`, {
+      const res = await fetch(`https://notehub-4mi4.onrender.com/api/notes/${this.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`
@@ -591,7 +591,7 @@ export default {
 
       const token = localStorage.getItem("token")
 
-      const res = await fetch(`http://127.0.0.1:5000/api/notes/${this.id}/versions`, {
+      const res = await fetch(`https://notehub-4mi4.onrender.com/api/notes/${this.id}/versions`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -630,7 +630,7 @@ export default {
       const token = localStorage.getItem("token")
 
       const res = await fetch(
-        `http://127.0.0.1:5000/api/notes/${this.id}/versions/${versionId}/restore`,
+        `https://notehub-4mi4.onrender.com/api/notes/${this.id}/versions/${versionId}/restore`,
         {
           method: "PUT",
           headers: {
