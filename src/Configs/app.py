@@ -27,6 +27,7 @@ CORS(
 )
 
 
+# User table for storing registered accounts.
 class User(db.Model):
     __tablename__ = "users"
 
@@ -37,6 +38,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 
+# Note table for storing uploaded notes.
 class Note(db.Model):
     __tablename__ = "notes"
 
@@ -53,6 +55,7 @@ class Note(db.Model):
     user = db.relationship("User", backref="notes")
 
 
+# NoteVersion table for saving old note versions.
 class NoteVersion(db.Model):
     __tablename__ = "note_versions"
 
@@ -70,6 +73,7 @@ class NoteVersion(db.Model):
     note = db.relationship("Note", backref="versions")
 
 
+# Gets the logged-in user's ID from the JWT token.
 def get_current_user_id():
     identity = get_jwt_identity()
 
@@ -82,6 +86,7 @@ def get_current_user_id():
         return None
 
 
+# Checks if the user can edit a note.
 def can_edit_note(note, user_id):
     if not note or not user_id:
         return False
@@ -89,11 +94,13 @@ def can_edit_note(note, user_id):
     return note.user_id == user_id or bool(note.editable_by_others)
 
 
+# Checks if a given URL uses http or https.
 def is_valid_url(url):
     parsed_url = urlparse(url)
     return parsed_url.scheme in ("http", "https") and bool(parsed_url.netloc)
 
 
+# Cleans and validates attached links before saving.
 def normalize_links(raw_links):
     if raw_links in (None, ""):
         return []
@@ -121,10 +128,12 @@ def normalize_links(raw_links):
     return normalized_links
 
 
+# Converts the links list into JSON text for SQLite.
 def serialize_links(raw_links):
     return json.dumps(normalize_links(raw_links))
 
 
+# Converts saved JSON link text back into a Python list.
 def deserialize_links(links_json):
     if not links_json:
         return []
@@ -137,6 +146,7 @@ def deserialize_links(links_json):
     return links if isinstance(links, list) else []
 
 
+# Converts a Note object into JSON-ready data for the frontend.
 def note_to_dict(note, current_user_id=None):
     username = note.user.name if note.user else "Unknown"
     date_str = note.date_created.strftime("%b %d, %Y") if note.date_created else ""
@@ -156,6 +166,7 @@ def note_to_dict(note, current_user_id=None):
     }
 
 
+# Adds a missing database column without deleting existing data.
 def add_column_if_missing(table_name, column_name, column_definition):
     inspector = inspect(db.engine)
     existing_columns = [column["name"] for column in inspector.get_columns(table_name)]
@@ -168,6 +179,7 @@ def add_column_if_missing(table_name, column_name, column_definition):
             connection.commit()
 
 
+# Registers a new user account.
 @app.route("/api/register", methods=["POST"])
 def register():
     data = request.get_json()
@@ -199,6 +211,7 @@ def register():
     return jsonify({"message": "User registered successfully."}), 201
 
 
+# Logs in a user and returns a JWT access token.
 @app.route("/api/login", methods=["POST"])
 def login():
     data = request.get_json()
@@ -227,6 +240,7 @@ def login():
     }), 200
 
 
+# Creates a new note for the logged-in user.
 @app.route("/api/notes", methods=["POST"])
 @jwt_required()
 def create_note():
@@ -267,6 +281,7 @@ def create_note():
     return jsonify({"message": "Note created successfully"}), 201
 
 
+# Gets all notes for browsing.
 @app.route("/api/notes", methods=["GET"])
 @jwt_required(optional=True)
 def get_notes():
@@ -275,6 +290,7 @@ def get_notes():
     return jsonify([note_to_dict(note, current_user_id) for note in notes]), 200
 
 
+# Gets only the notes created by the logged-in user.
 @app.route("/api/my_notes", methods=["GET"])
 @jwt_required()
 def get_my_notes():
@@ -283,6 +299,7 @@ def get_my_notes():
     return jsonify([note_to_dict(note, current_user_id) for note in notes]), 200
 
 
+# Updates a note and saves its previous state as a version.
 @app.route("/api/notes/<int:note_id>", methods=["PUT"])
 @jwt_required()
 def update_note(note_id):
@@ -327,6 +344,7 @@ def update_note(note_id):
     return jsonify({"message": "Note updated successfully"}), 200
 
 
+# Gets the version history of a note.
 @app.route("/api/notes/<int:note_id>/versions", methods=["GET"])
 @jwt_required()
 def get_note_versions(note_id):
@@ -359,6 +377,7 @@ def get_note_versions(note_id):
     return jsonify(result), 200
 
 
+# Restores a previous note version.
 @app.route("/api/notes/<int:note_id>/versions/<int:version_id>/restore", methods=["PUT"])
 @jwt_required()
 def restore_note_version(note_id, version_id):
@@ -402,6 +421,7 @@ def restore_note_version(note_id, version_id):
     return jsonify({"message": "Version restored successfully"}), 200
 
 
+# Deletes a note and its saved versions.
 @app.route("/api/notes/<int:note_id>", methods=["DELETE"])
 @jwt_required()
 def delete_note(note_id):
@@ -418,6 +438,7 @@ def delete_note(note_id):
     return jsonify({"message": "Note deleted successfully"}), 200
 
 
+# Creates tables and adds missing columns.
 def initialize_database():
     db.create_all()
     add_column_if_missing("notes", "links", "TEXT DEFAULT '[]'")
