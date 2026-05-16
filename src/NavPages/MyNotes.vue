@@ -1,25 +1,36 @@
 <template>
-  <p class="text-3xl inter-bold">My Notes</p>
+  <section class="max-w-7xl mx-auto px-6 py-10">
+    <div class="mb-8">
+      <p class="inter-bold text-4xl text-gray-900">
+        My Notes
+      </p>
+      <p class="text-gray-500 mt-2">
+        This is where your uploded notes, summaries, and study materials are stored. 
+      </p>
+    </div>
 
-  <div class="grid 2xl:grid-cols-3 lg:grid-cols-2 justify-items-center space-y-5 mt-5">
-    <NoteBox
-      v-for="note in notes"
-      :key="note.id"
-      :id="note.id"
-      :fileLink="note.fileLink"
-      :links="note.links"
-      :Title="note.title"
-      :Description="note.description"
-      :Subject="note.subject"
-      :Username="note.Username"
-      :Date="note.Date"
-      :userId="note.user_id"
-      :canEdit="note.can_edit"
-      :editableByOthers="note.editable_by_others"
-      @note-updated="fetchNotes"
-      @note-deleted="fetchNotes"
-    />
-  </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+      <NoteBox
+        
+        v-for="note in notes"
+        :key="note.id"
+      
+        :id="note.id"
+        :fileLink="note.fileLink"
+        :links="note.links"
+        :Title="note.title"
+        :Description="note.description"
+        :Subject="note.subject"
+        :Username="note.Username"
+        :Date="note.Date"
+        :userId="note.user_id"
+        :canEdit="note.can_edit"
+        :editableByOthers="note.editable_by_others"
+        @note-updated="fetchNotes"
+        @note-deleted="fetchNotes"
+      />
+    </div>
+  </section>
 </template>
 
 <script>

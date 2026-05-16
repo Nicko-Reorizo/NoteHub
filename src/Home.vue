@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Navbar -->
-    <div class="nav border-b border-[#0000002f] h-[50px]  xl:px-70 lg:px-40 md:px-30 flex items-center justify-between">
+    <div class="nav border-b border-[#0000002f] h-[60px]  xl:px-70 lg:px-40 md:px-30 flex items-center justify-between">
       <div class="flex items-center">
         <img :src="logo" alt="Logo" class="w-[100px] h-[100px]" />
         

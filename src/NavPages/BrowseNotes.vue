@@ -33,14 +33,33 @@ export default {
 </script>
 
 <template>
-  <p class="inter-bold text-3xl text-left md:px-30 lg:px-0">
-    Browse Notes
-  </p>
+  <section class="max-w-7xl mx-auto px-6 py-10">
+  
+  <!-- Header -->
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    
+    <div>
+      <p class="inter-bold text-4xl text-gray-900">
+        Browse Notes
+      </p>
 
-  <div class="grid 2xl:grid-cols-3 md:grid-cols-2 justify-items-center space-y-10 mt-5">
+      <p class="text-gray-500 mt-2">
+        Discover reviewer notes, summaries, and study materials shared by others.
+      </p>
+    </div>
+
+    
+  </div>
+
+
+  <!-- Notes Grid -->
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"
+  >
     <NoteBox
       v-for="note in notes"
       :key="note.id"
+     
       :id="note.id"
       :fileLink="note.fileLink"
       :links="note.links"
@@ -52,8 +71,11 @@ export default {
       :userId="note.user_id"
       :canEdit="note.can_edit"
       :editableByOthers="note.editable_by_others"
+
       @note-updated="fetchNotes"
       @note-deleted="fetchNotes"
     />
   </div>
+
+</section>
 </template>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="w-[320px] h-[200px] border border-[#00000018] rounded-[5px]">
+    <div class="w-[320px] h-[200px] border border-[#00000018] rounded-[5px] shadow-lg hover:-translate-y-1 hover:shadow-lg transition duration-300 ease-in-out">
       <div class="titleDiv p-6">
         <p class="inter-bold pb-1 text-lg truncate">{{ localTitle }}</p>
 
