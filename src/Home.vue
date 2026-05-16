@@ -46,7 +46,7 @@
 
       <button
         @click="logout"
-        class="w-full rounded-[8px] px-3 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+        class="w-full rounded-[8px] px-3 py-2  text-sm text-red-500 hover:bg-red-400 font-medium text-white bg-red-500 text-center"
       >
         Log out
       </button>
