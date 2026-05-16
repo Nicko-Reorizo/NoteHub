@@ -38,7 +38,7 @@ class User(db.Model):
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
 
-# Note table for storing uploaded notes.
+# Note table for storing uploaded notes
 class Note(db.Model):
     __tablename__ = "notes"
 
@@ -88,10 +88,13 @@ def get_current_user_id():
 
 # Checks if the user can edit a note.
 def can_edit_note(note, user_id):
-    if not note or not user_id:
+    if not note or user_id is None:
         return False
 
-    return note.user_id == user_id or bool(note.editable_by_others)
+    try:
+        return int(note.user_id) == int(user_id) or bool(note.editable_by_others)
+    except (TypeError, ValueError):
+        return False
 
 
 # Checks if a given URL uses http or https.
