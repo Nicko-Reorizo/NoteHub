@@ -7,12 +7,52 @@
         
       </div>
 
-      <div class="space-x-8 text-sm">
-        <button @click="currComponent='browsenotes'" class="inter-semibold HomeBtn opacity-75">Home</button>
-        <button @click="currComponent='upload'" class="inter-semibold UploadBtn opacity-75">Upload</button>
-        <button @click="currComponent='mynotes'" class="inter-semibold MyNotesBtn opacity-75">MyNotes</button>
-        <button @click="logout" class="inter-semibold LogoutBtn p-2 px-3 rounded-[10px] text-white">Log out</button>
-      </div>
+      <div class="space-x-8 text-sm flex items-center">
+  <button @click="currComponent='browsenotes'" class="inter-semibold HomeBtn opacity-75">
+    Home
+  </button>
+
+  <button @click="currComponent='upload'" class="inter-semibold UploadBtn opacity-75">
+    Upload
+  </button>
+
+  <button @click="currComponent='mynotes'" class="inter-semibold MyNotesBtn opacity-75">
+    MyNotes
+  </button>
+
+  <div class="relative">
+    <button
+      @click="showProfileMenu = !showProfileMenu"
+      class="inter-semibold flex items-center gap-2 rounded-[10px] bg-black px-4 py-2 text-white"
+    >
+      {{ currentUser?.name || "Profile" }}
+
+      <span class="text-xs">
+        ▼
+      </span>
+    </button>
+
+    <div
+      v-if="showProfileMenu"
+      class="absolute right-0 mt-2 w-[170px] rounded-[10px] border border-black/10 bg-white p-2 shadow-lg z-50"
+    >
+      <p class="px-3 py-2 text-xs text-black/50">
+        Signed in as
+      </p>
+
+      <p class="px-3 pb-2 text-sm font-medium text-black truncate">
+        {{ currentUser?.name }}
+      </p>
+
+      <button
+        @click="logout"
+        class="w-full rounded-[8px] px-3 py-2 text-left text-sm text-red-500 hover:bg-red-50"
+      >
+        Log out
+      </button>
+    </div>
+  </div>
+</div>
     </div>
 
     <!-- Upload Section -->
@@ -40,7 +80,9 @@ export default {
   components: { Upload, BrowseNotes, MyNotes },
   data() {
     return { logo,
-      currComponent: 'browsenotes'
+      currComponent: 'browsenotes',
+       showProfileMenu: false,
+    currentUser: JSON.parse(localStorage.getItem("user")) || null
      }
   },
   methods:{
