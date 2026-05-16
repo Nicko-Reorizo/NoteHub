@@ -2,7 +2,7 @@
   <div>
     <div class="w-[320px] h-[200px] border border-[#00000018] rounded-[5px]">
       <div class="titleDiv p-6">
-        <p class="inter-bold pb-1 text-lg">{{ localTitle }}</p>
+        <p class="inter-bold pb-1 text-lg truncate">{{ localTitle }}</p>
 
         <p :class="['text-xs inline-block mb-3 px-3 py-1 rounded-2xl font-medium', subjectColor]">
           {{ localSubject }}
@@ -20,10 +20,8 @@
             <p class="text-xs opacity-55">{{ Date }}</p>
           </div>
 
-          <button
-            @click="showModal = true"
-            class="text-sm px-3 p-2 font-medium border bg-black text-white rounded-[5px] border-[#0000004b]"
-          >
+          <button @click="showModal = true"
+            class="text-sm px-3 p-2 font-medium border bg-black text-white rounded-[5px] border-[#0000004b]">
             View Details
           </button>
         </div>
@@ -31,74 +29,115 @@
     </div>
 
     <div v-if="showModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-      <div class="bg-white w-full max-w-[700px] rounded-[10px] border border-[#00000018] shadow-lg p-6 relative overflow-hidden">
-        <button
-          @click="closeModal"
-          class="absolute top-6 right-4 text-sm px-3 py-1 border rounded-[5px] border-[#00000030]"
-        >
+      <div
+        class="bg-white w-full max-w-[700px] rounded-[10px] border border-[#00000018] shadow-lg p-6 relative overflow-hidden">
+        <button @click="closeModal"
+          class="absolute top-6 right-4 text-sm px-3 py-1 border rounded-[5px] border-[#00000030]">
           Close
         </button>
 
-        <div v-if="isEditing" class="pr-24">
-          <label class="text-sm font-medium text-black/70">Title</label>
-          <input v-model="editTitle" type="text" class="mb-3 mt-1 w-full rounded-[6px] border border-black/20 px-3 py-2" />
+        <div v-if="isEditing">
+  <div class="flex justify-between items-start gap-4 mb-4">
+    <div class="w-full pr-24">
+      <input
+        v-model="editTitle"
+        class="text-3xl font-semibold mb-2 w-full bg-transparent outline-none border-0 focus:ring-0 px-0"
+        placeholder="Note title"
+      />
 
-          <label class="text-sm font-medium text-black/70">Subject</label>
-          <input v-model="editSubject" type="text" class="mb-3 mt-1 w-full rounded-[6px] border border-black/20 px-3 py-2" />
+      <div class="flex gap-2 text-sm text-black/60">
+        <p>By {{ Username }}</p>
+        <p>·</p>
+        <p>{{ Date }}</p>
+      </div>
 
-          <label class="text-sm font-medium text-black/70">Description</label>
-          <textarea v-model="editDescription" rows="5" class="mb-3 mt-1 w-full rounded-[6px] border border-black/20 px-3 py-2 resize-none"></textarea>
+      <div class="mt-3 flex items-center gap-2 text-xs text-black/50">
+        <span>Edit Permission:</span>
 
-          <label class="text-sm font-medium text-black/70">File Link</label>
-          <input v-model="editFileLink" type="text" class="mb-3 mt-1 w-full rounded-[6px] border border-black/20 px-3 py-2" />
+        <select
+          v-if="isOwner"
+          v-model="editEditableByOthers"
+          class="rounded-full bg-black/[0.04] px-3 py-1 outline-none border border-black/10 text-xs"
+        >
+          <option :value="false">Only I can edit this note</option>
+          <option :value="true">Other logged-in users can edit this note</option>
+        </select>
 
-          <div v-if="isOwner" class="mb-4 rounded-[8px] border border-black/10 p-3">
-            <p class="mb-2 text-sm font-medium text-black/70">Edit Permission</p>
+        <span v-else>
+          {{ localEditableByOthers ? "Editable by other logged-in users" : "Editable by owner only" }}
+        </span>
+      </div>
+    </div>
 
-            <label class="mb-2 flex items-center gap-3 cursor-pointer text-sm">
-              <input v-model="editEditableByOthers" type="radio" :value="false" class="h-4 w-4" />
-              <span>Only I can edit this note</span>
-            </label>
+    <input
+      v-model="editSubject"
+      class="text-xs inline-block px-3 py-1 rounded-2xl whitespace-nowrap mr-15 bg-blue-100 text-blue-700 outline-none border-0 focus:ring-0"
+      placeholder="Subject"
+    />
+  </div>
 
-            <label class="flex items-center gap-3 cursor-pointer text-sm">
-              <input v-model="editEditableByOthers" type="radio" :value="true" class="h-4 w-4" />
-              <span>Other logged-in users can edit this note</span>
-            </label>
-          </div>
+  <textarea
+    v-model="editDescription"
+    rows="5"
+    class="appearance-none w-full text-base leading-7 text-black/80 mb-5 px-0 py-2 outline-none border-0 focus:ring-0 resize-none bg-transparent break-words whitespace-pre-wrap"
+    placeholder="Write your note description..."
+  ></textarea>
 
-          <label class="text-sm font-medium text-black/70">Add Link</label>
-          <div class="mt-1 flex gap-2">
-            <input
-              v-model="editLinkInput"
-              type="url"
-              placeholder="https://example.com/resource"
-              class="flex-1 rounded-[6px] border border-black/20 px-3 py-2"
-              @keydown.enter.prevent="addEditLink"
-            />
+  <div class="mb-5 rounded-[10px] bg-black/[0.03] border border-black/10 p-4">
+    <p class="text-sm font-medium text-black/70 mb-2">File Link</p>
 
-            <button type="button" class="rounded-[6px] border border-black/20 px-4 py-2 text-sm hover:bg-black/5" @click="addEditLink">
-              Add
-            </button>
-          </div>
+    <input
+      v-model="editFileLink"
+      type="text"
+      class="w-full bg-transparent outline-none border-0 focus:ring-0 text-sm"
+      placeholder="Paste file link here"
+    />
+  </div>
 
-          <p v-if="editLinkError" class="mt-2 text-sm text-red-600">
-            {{ editLinkError }}
-          </p>
+  <div class="mb-6 rounded-[10px] bg-black/[0.03] border border-black/10 p-4">
+    <p class="text-sm font-medium text-black/70 mb-3">Attached Links</p>
 
-          <div v-if="editLinks.length" class="mt-3 flex flex-wrap gap-2">
-            <div
-              v-for="link in editLinks"
-              :key="link"
-              class="flex max-w-full items-center gap-2 rounded-[6px] border border-[#00000018] bg-black/[0.03] px-3 py-2 text-sm"
-            >
-              <span class="max-w-[260px] truncate">{{ link }}</span>
+    <div class="flex gap-2">
+      <input
+        v-model="editLinkInput"
+        type="url"
+        placeholder="Paste a link"
+        class="flex-1 rounded-[6px] border border-black/10 bg-white px-3 py-2 text-sm outline-none focus:border-black/30"
+        @keydown.enter.prevent="addEditLink"
+      />
 
-              <button type="button" class="text-black/50 hover:text-red-600" @click="removeEditLink(link)">
-                x
-              </button>
-            </div>
-          </div>
-        </div>
+      <button
+        type="button"
+        @click="addEditLink"
+        class="rounded-[6px] bg-black px-4 py-2 text-sm text-white hover:bg-black/80"
+      >
+        Add
+      </button>
+    </div>
+
+    <p v-if="editLinkError" class="mt-2 text-sm text-red-600">
+      {{ editLinkError }}
+    </p>
+
+    <div v-if="editLinks.length" class="mt-3 flex flex-wrap gap-2">
+      <div
+        v-for="link in editLinks"
+        :key="link"
+        class="flex max-w-full items-center gap-2 rounded-full bg-white border border-black/10 px-3 py-1.5 text-xs"
+      >
+        <span class="max-w-[260px] truncate">{{ link }}</span>
+
+        <button
+          type="button"
+          class="text-black/40 hover:text-red-500"
+          @click="removeEditLink(link)"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
         <div v-else>
           <div class="flex justify-between items-start gap-4 mb-4">
@@ -123,7 +162,8 @@
             </p>
           </div>
 
-          <p class="text-base leading-7 text-black/80 mb-6 break-words whitespace-pre-wrap max-h-[180px] overflow-y-auto">
+          <p
+            class="text-base leading-7 text-black/80 mb-6 break-words whitespace-pre-wrap max-h-[180px] overflow-y-auto">
             {{ localDescription }}
           </p>
 
@@ -131,14 +171,8 @@
             <p class="mb-2 text-sm font-medium text-black/70">Attached Links</p>
 
             <div class="flex flex-wrap gap-2">
-              <a
-                v-for="link in normalizedLinks"
-                :key="link"
-                :href="link"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="max-w-full truncate rounded-[6px] border border-[#00000018] bg-black/[0.03] px-3 py-2 text-sm text-purple-800 hover:bg-purple-50"
-              >
+              <a v-for="link in normalizedLinks" :key="link" :href="link" target="_blank" rel="noopener noreferrer"
+                class="max-w-full truncate rounded-[6px] border border-[#00000018] bg-black/[0.03] px-3 py-2 text-sm text-purple-800 hover:bg-purple-50">
                 {{ link }}
               </a>
             </div>
@@ -146,48 +180,58 @@
         </div>
 
         <div class="pt-5 flex gap-3">
-          <button
-            title="Open File"
-            @click="openFile"
-            class="w-10 h-10 rounded-[6px] flex items-center justify-center transition bg-black text-white shadow-sm hover:bg-black/80 hover:shadow-md"
-          >
-            Open
+          <!-- Open File -->
+          <button title="Open File" @click="openFile"
+            class="w-10 h-10 rounded-[6px] flex items-center justify-center transition bg-black text-white shadow-sm hover:bg-black/80 hover:shadow-md">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M3 7h6l2 2h10v10H3z" />
+            </svg>
           </button>
 
-          <button
-            title="Edit"
-            :disabled="!canEditNote"
-            @click="handleEditClick"
-            :class="[
-              'w-10 h-10 rounded-[6px] flex items-center justify-center transition',
-              canEditNote ? 'hover:bg-black/20 cursor-pointer' : 'opacity-30 cursor-not-allowed'
-            ]"
-          >
-            {{ isEditing ? "Save" : "Edit" }}
+          <!-- Edit / Save -->
+          <button :title="isEditing ? 'Save' : 'Edit'" :disabled="!canEditNote" @click="handleEditClick" :class="[
+            'w-10 h-10 rounded-[6px] flex items-center justify-center transition',
+            canEditNote
+              ? 'hover:bg-black/20 cursor-pointer'
+              : 'opacity-30 cursor-not-allowed'
+          ]">
+            <svg v-if="!isEditing" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+              viewBox="0 0 24 24">
+              <path d="M12 20h9" />
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+            </svg>
+
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
           </button>
 
-          <button
-            title="Version History"
-            :disabled="!canEditNote"
-            @click="openVersionHistory"
-            :class="[
-              'w-20 h-10 rounded-[6px] flex items-center justify-center transition text-sm',
-              canEditNote ? 'hover:bg-black/20 cursor-pointer' : 'opacity-30 cursor-not-allowed'
-            ]"
-          >
-            History
+          <!-- Version History -->
+          <button title="Version History" :disabled="!canEditNote" @click="openVersionHistory" :class="[
+            'w-10 h-10 rounded-[6px] flex items-center justify-center transition',
+            canEditNote
+              ? 'hover:bg-black/20 cursor-pointer'
+              : 'opacity-30 cursor-not-allowed'
+          ]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 8v5l3 2" />
+              <path d="M3 12a9 9 0 1 0 3-6.7" />
+              <path d="M3 3v5h5" />
+            </svg>
           </button>
 
-          <button
-            title="Delete"
-            :disabled="!isOwner"
-            @click="showDeleteConfirm = true"
-            :class="[
-              'w-14 h-10 rounded-[6px] flex items-center justify-center text-red-500 transition text-sm',
-              isOwner ? 'hover:bg-black/20 cursor-pointer' : 'opacity-30 cursor-not-allowed'
-            ]"
-          >
-            Delete
+          <!-- Delete -->
+          <button title="Delete" :disabled="!isOwner" @click="showDeleteConfirm = true" :class="[
+            'w-10 h-10 rounded-[6px] flex items-center justify-center text-red-500 transition',
+            isOwner
+              ? 'hover:bg-black/20 cursor-pointer'
+              : 'opacity-30 cursor-not-allowed'
+          ]">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M3 6h18" />
+              <path d="M8 6V4h8v2" />
+              <path d="M6 6l1 14h10l1-14" />
+            </svg>
           </button>
         </div>
       </div>
@@ -203,7 +247,8 @@
             Cancel
           </button>
 
-          <button @click="confirmSaveEdit" class="px-4 py-2 rounded-[6px] bg-black text-white text-sm hover:bg-black/80">
+          <button @click="confirmSaveEdit"
+            class="px-4 py-2 rounded-[6px] bg-black text-white text-sm hover:bg-black/80">
             Save
           </button>
         </div>
@@ -220,7 +265,8 @@
             Cancel
           </button>
 
-          <button @click="confirmDeleteNote" class="px-4 py-2 rounded-[6px] bg-red-500 text-white text-sm hover:bg-red-600">
+          <button @click="confirmDeleteNote"
+            class="px-4 py-2 rounded-[6px] bg-red-500 text-white text-sm hover:bg-red-600">
             Delete
           </button>
         </div>
@@ -263,7 +309,8 @@
               {{ version.description }}
             </p>
 
-            <button @click="askRestoreVersion(version.id)" class="text-sm bg-black text-white px-4 py-2 rounded-[6px] hover:bg-black/80">
+            <button @click="askRestoreVersion(version.id)"
+              class="text-sm bg-black text-white px-4 py-2 rounded-[6px] hover:bg-black/80">
               Restore
             </button>
           </div>
@@ -281,7 +328,8 @@
             Cancel
           </button>
 
-          <button @click="confirmRestoreVersion" class="px-4 py-2 rounded-[6px] bg-black text-white text-sm hover:bg-black/80">
+          <button @click="confirmRestoreVersion"
+            class="px-4 py-2 rounded-[6px] bg-black text-white text-sm hover:bg-black/80">
             Restore
           </button>
         </div>

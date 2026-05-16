@@ -1,81 +1,122 @@
 <template>
-  <div class="flex justify-center">
-    <div class="UploadForm border border-[#00000018] rounded-[10px] p-7 mt-5">
-      <p class="text-2xl inter-bold">Upload Note</p>
-
-      <form class="flex flex-col" @submit.prevent="handleUpload">
-        <label class="mt-5">Title</label>
-        <input v-model="title" type="text" placeholder="Note Title." />
-
-        <label class="mt-5">Description</label>
-        <textarea v-model="description" placeholder="Note Description..."></textarea>
-
-        <label class="mt-5">Subject</label>
-        <input v-model="subject" type="text" placeholder="Type your subject." />
-
-        <label class="mt-5">File Link</label>
-        <input v-model="fileLink" type="text" placeholder="https://" />
-
-        <label class="mt-5">Edit Permission</label>
-        <div class="grid gap-3 rounded-[8px] border border-[#00000018] p-4">
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input v-model="editableByOthers" type="radio" :value="false" class="h-4 w-4" />
-            <span>Only me can edit</span>
-          </label>
-
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input v-model="editableByOthers" type="radio" :value="true" class="h-4 w-4" />
-            <span>Others may edit</span>
-          </label>
-        </div>
-
-        <label class="mt-5">Add Link</label>
-        <div class="flex gap-2">
-          <input
-            v-model="linkInput"
-            type="url"
-            placeholder="https://example.com/resource"
-            class="flex-1"
-            @keydown.enter.prevent="addLink"
-          />
-
-          <button
-            type="button"
-            class="rounded-[3px] border border-[#00000018] px-4 py-2 text-sm hover:bg-black/5"
-            @click="addLink"
-          >
-            Add Link
-          </button>
-        </div>
-
-        <p v-if="linkError" class="mt-2 text-sm text-red-600">
-          {{ linkError }}
+  <div class="flex justify-center px-4">
+    <div class="w-full max-w-[720px] rounded-[18px] border border-[#00000018] bg-white p-8 shadow-sm mt-6">
+      <div class="mb-7">
+        <p class="text-3xl inter-bold">Upload Note</p>
+        <p class="text-sm text-black/50 mt-1">
+          Share a study note, file, and helpful links with NoteHub.
         </p>
+      </div>
 
-        <div v-if="links.length" class="mt-3 flex flex-wrap gap-2">
-          <div
-            v-for="link in links"
-            :key="link"
-            class="flex max-w-full items-center gap-2 rounded-[6px] border border-[#00000018] bg-black/[0.03] px-3 py-2 text-sm"
-          >
-            <span class="max-w-[260px] truncate">{{ link }}</span>
+      <form class="flex flex-col gap-5" @submit.prevent="handleUpload">
+        <div>
+          <label class="text-sm font-medium text-black/70">Title</label>
+          <input
+            v-model="title"
+            type="text"
+            placeholder="e.g. Trends in Application Development"
+            class="mt-2 w-full rounded-[10px] border border-black/10 bg-black/[0.03] px-4 py-3 outline-none transition focus:border-purple-400 focus:bg-white"
+          />
+        </div>
 
-            <button
-              type="button"
-              class="text-black/50 hover:text-red-600"
-              :aria-label="`Remove ${link}`"
-              @click="removeLink(link)"
-            >
-              x
-            </button>
+        <div>
+          <label class="text-sm font-medium text-black/70">Description</label>
+          <textarea
+            v-model="description"
+            rows="5"
+            placeholder="Write a short description of your note..."
+            class="mt-2 w-full resize-none rounded-[10px] border border-black/10 bg-black/[0.03] px-4 py-3 outline-none transition focus:border-purple-400 focus:bg-white"
+          ></textarea>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <div>
+            <label class="text-sm font-medium text-black/70">Subject</label>
+            <input
+              v-model="subject"
+              type="text"
+              placeholder="e.g. CSDC105"
+              class="mt-2 w-full rounded-[10px] border border-black/10 bg-black/[0.03] px-4 py-3 outline-none transition focus:border-purple-400 focus:bg-white"
+            />
+          </div>
+
+          <div>
+            <label class="text-sm font-medium text-black/70">File Link</label>
+            <input
+              v-model="fileLink"
+              type="text"
+              placeholder="https://"
+              class="mt-2 w-full rounded-[10px] border border-black/10 bg-black/[0.03] px-4 py-3 outline-none transition focus:border-purple-400 focus:bg-white"
+            />
           </div>
         </div>
 
-        <input
+        <div class="rounded-[14px] border border-black/10 bg-black/[0.025] p-5">
+          <label class="text-sm font-medium text-black/70">Edit Permission</label>
+
+          <select
+            v-model="editableByOthers"
+            class="mt-2 w-full rounded-[10px] border border-black/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-purple-400"
+          >
+            <option :value="false">Only I can edit this note</option>
+            <option :value="true">Other logged-in users can edit this note</option>
+          </select>
+        </div>
+
+        <div class="rounded-[14px] border border-black/10 bg-black/[0.025] p-5">
+          <div class="mb-3">
+            <p class="text-sm font-medium text-black/70">Attached Links</p>
+            <p class="text-xs text-black/45">Add references, docs, or helpful resources.</p>
+          </div>
+
+          <div class="flex gap-2">
+            <input
+              v-model="linkInput"
+              type="url"
+              placeholder="https://example.com/resource"
+              class="flex-1 rounded-[10px] border border-black/10 bg-white px-4 py-3 text-sm outline-none transition focus:border-purple-400"
+              @keydown.enter.prevent="addLink"
+            />
+
+            <button
+              type="button"
+              class="rounded-[10px] bg-black px-5 py-3 text-sm font-medium text-white transition hover:bg-black/80"
+              @click="addLink"
+            >
+              Add
+            </button>
+          </div>
+
+          <p v-if="linkError" class="mt-2 text-sm text-red-600">
+            {{ linkError }}
+          </p>
+
+          <div v-if="links.length" class="mt-4 flex flex-wrap gap-2">
+            <div
+              v-for="link in links"
+              :key="link"
+              class="flex max-w-full items-center gap-2 rounded-full border border-purple-100 bg-purple-50 px-3 py-2 text-sm text-purple-800"
+            >
+              <span class="max-w-[260px] truncate">{{ link }}</span>
+
+              <button
+                type="button"
+                class="text-purple-500 hover:text-red-500"
+                :aria-label="`Remove ${link}`"
+                @click="removeLink(link)"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <button
           type="submit"
-          value="Upload Note"
-          class="inter-regular mt-5 w-full rounded-[3px] cursor-pointer bg-purple-800 p-1 py-2.5 text-white"
-        />
+          class="inter-regular mt-2 w-full rounded-[10px] bg-purple-800 px-4 py-3 text-white transition hover:bg-purple-900"
+        >
+          Upload Note
+        </button>
       </form>
     </div>
   </div>
